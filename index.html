@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Audit</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f4f6fb;
+      color: #1b2433;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(20, 30, 60, 0.08);
+      padding: 32px 28px;
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 6px; }
+    .subtitle { color: #5b667a; font-size: 0.95rem; margin-bottom: 24px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #d5dbe6;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+    input:focus { outline: 2px solid #3b6cf6; border-color: transparent; }
+    button.primary {
+      width: 100%;
+      padding: 14px;
+      background: #3b6cf6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .status { margin-top: 16px; font-size: 0.95rem; text-align: center; min-height: 1.2em; }
+    .status.ok { color: #1a7f37; }
+    .status.err { color: #c62828; }
+    .pay-link {
+      display: none;
+      margin-top: 12px;
+      text-align: center;
+      text-decoration: none;
+      background: #1a7f37;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Free Audit</h1>
+    <p class="subtitle">Enter your details to get your audit. Pay ₹1 to confirm.</p>
+
+    <form id="auditForm" novalidate>
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" required autocomplete="name" />
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="email" />
+
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone" type="tel" required autocomplete="tel" />
+
+      <button type="submit" class="primary" id="submitBtn">Free audit for ₹1</button>
+    </form>
+
+    <p class="status" id="status"></p>
+    <a class="pay-link" id="payLink" href="#" target="_blank" rel="noopener">Continue to payment</a>
+  </main>
+
+  <script>
+    var SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbxr1b6zVgX3VT2krTHZv87V-A226fB2IfRsFfkgLcnb7EyRgF2szAEIk03UFJC4mKChxA/exec";
+    var PAYMENT_URL = "https://payments.cashfree.com/forms/getaudit";
+
+    var form = document.getElementById("auditForm");
+    var submitBtn = document.getElementById("submitBtn");
+    var statusEl = document.getElementById("status");
+    var payLink = document.getElementById("payLink");
+
+    function showSuccess() {
+      statusEl.className = "status ok";
+      statusEl.textContent = "Thanks! Your details have been saved.";
+      submitBtn.disabled = false;
+      payLink.href = PAYMENT_URL;
+      payLink.style.display = "block";
+    }
+
+    function showError() {
+      statusEl.className = "status err";
+      statusEl.textContent = "Something went wrong. Please try again.";
+      submitBtn.disabled = false;
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      var name = document.getElementById("name").value.trim();
+      var email = document.getElementById("email").value.trim();
+      var phone = document.getElementById("phone").value.trim();
+
+      if (!name || !email || !phone) {
+        statusEl.className = "status err";
+        statusEl.textContent = "Please fill in all fields.";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.className = "status";
+      statusEl.textContent = "Saving...";
+
+      var url = SCRIPT_URL + "?" + new URLSearchParams({ name: name, email: email, phone: phone });
+
+      fetch(url, { method: "GET", mode: "no-cors" })
+        .then(function () { showSuccess(); })
+        .catch(function () { showError(); });
+    });
+  </script>
+</body>
+</html>
